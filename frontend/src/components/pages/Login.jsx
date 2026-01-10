@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../helpers/Firebase";
 import { useAuth } from "../contexts/AuthContext";
-import "./LogIn.css";
+import "./Login.css";
 
 export default function Login() {
 	const [email, setEmail] = useState("");
