@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../utils/Firebase";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../helpers/Firebase";
 import { useAuth } from "../contexts/AuthContext";
 import "./LogIn.css";
 
@@ -13,6 +13,7 @@ export default function Login() {
 
 	const navigate = useNavigate();
 	const { user } = useAuth();
+	const googleProvider = new GoogleAuthProvider();
 
 	useEffect(() => {
 		if (user) navigate("/", { replace: true });
@@ -22,7 +23,38 @@ export default function Login() {
 			setEmail(savedEmail);
 			setRemember(true);
 		}
+
+		googleProvider.setCustomParameters({
+			prompt: "select_account",
+		});
 	}, []);
+
+	async function handleGoogleLogin() {
+		try {
+			const result = await signInWithPopup(auth, googleProvider);
+			const user = result.user;
+			const userRef = doc(db, "users", user.uid);
+			const snap = await getDoc(userRef);
+			if (!snap.exists()) {
+				const [firstName = "", lastName = ""] = (user.displayName || "").split(" ");
+				await setDoc(userRef, {
+					firstName,
+					lastName,
+					email: user.email,
+					github: "",
+					leetcode: "",
+					pfp: user.photoURL || "",
+					provider: "google",
+					createdAt: serverTimestamp(),
+				});
+			}
+			// alert("Logged in with Google ✅");
+			navigate("/", { replace: true });
+		} catch (error) {
+			console.error("Google login error:", error);
+			// alert("Google sign-in failed");
+		}
+	}
 
 	async function handleLogin() {
 		if (!email || !password) {
@@ -39,7 +71,7 @@ export default function Login() {
 		try {
 			await signInWithEmailAndPassword(auth, email, password);
 			// alert("Logged in successfully ✅");
-			navigate("/", { replace: true });
+			navigate("/dashboard", { replace: true });
 		} catch (error) {
 			console.error("Error signing in:", error);
 			if (error.code === "auth/user-not-found") {
@@ -63,7 +95,9 @@ export default function Login() {
 						<div className="logo">
 							<img src="/logo.png" alt="Logo" className="login-logo" />
 						</div>
-						<div className="back">← Back to website</div>
+						<Link to="/" className="back">
+							← Back to website
+						</Link>
 					</div>
 
 					<div className="hero-text">
@@ -75,12 +109,14 @@ export default function Login() {
 
 				{/* RIGHT PANEL */}
 				<div className="right-panel">
-					<h2>Welcome Back!</h2>
+					<h2 className="font-bold">Welcome Back !!</h2>
 					<p className="login-text">
 						Don't have an account? <Link to="/signup">Sign Up</Link>
 					</p>
 
-					<input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+					<div className="field">
+						<input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+					</div>
 
 					<div className="password-box">
 						<input
@@ -116,7 +152,15 @@ export default function Login() {
 					</div>
 
 					<div className="social-buttons">
-						<button className="google">Google</button>
+						{/* <button className="google">Google</button> */}
+
+						<button
+							className="google hover:opacity-80 transition-opacity flex justify-center items-center gap-4"
+							onClick={handleGoogleLogin}
+						>
+							<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@master/icons/google/google-original.svg" alt="" className="w-6" />
+							<span>Google</span>
+						</button>
 					</div>
 				</div>
 			</div>

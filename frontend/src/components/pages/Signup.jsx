@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db } from "../utils/Firebase";
+import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "../helpers/Firebase";
 import { useAuth } from "../contexts/AuthContext";
+
 import "./Signup.css";
 
 export default function Signup() {
@@ -16,12 +17,43 @@ export default function Signup() {
 
 	const navigate = useNavigate();
 	const { user } = useAuth();
+	const googleProvider = new GoogleAuthProvider();
 
 	useEffect(() => {
 		if (user) {
 			navigate("/", { replace: true });
 		}
+		googleProvider.setCustomParameters({
+			prompt: "select_account",
+		});
 	}, [user]);
+
+	async function handleGoogleLogin() {
+		try {
+			const result = await signInWithPopup(auth, googleProvider);
+			const user = result.user;
+			const userRef = doc(db, "users", user.uid);
+			const snap = await getDoc(userRef);
+			if (!snap.exists()) {
+				const [firstName = "", lastName = ""] = (user.displayName || "").split(" ");
+				await setDoc(userRef, {
+					firstName,
+					lastName,
+					email: user.email,
+					github: "",
+					leetcode: "",
+					pfp: user.photoURL || "",
+					provider: "google",
+					createdAt: serverTimestamp(),
+				});
+			}
+			// alert("Logged in with Google ✅");
+			navigate("/", { replace: true });
+		} catch (error) {
+			console.error("Google login error:", error);
+			// alert("Google sign-in failed");
+		}
+	}
 
 	const isFormFilled = firstName.trim() && lastName.trim() && email.trim() && password.trim();
 
@@ -77,7 +109,7 @@ export default function Signup() {
 				createdAt: serverTimestamp(),
 			});
 			// alert("Signup Successful :)");
-			navigate("/", { replace: true });
+			navigate("/dashboard", { replace: true });
 		} catch (error) {
 			console.error(error);
 			alert("We encountered an error during signup. Please try again.");
@@ -95,7 +127,9 @@ export default function Signup() {
 						<div className="logo">
 							<img src="/logo.png" alt="Logo" className="signup-logo" />
 						</div>
-						<div className="back">← Back to website</div>
+						<Link to="/" className="back">
+							← Back to website
+						</Link>
 					</div>
 
 					<div className="hero-text">
@@ -107,7 +141,7 @@ export default function Signup() {
 
 				{/* RIGHT PANEL */}
 				<div className="right-panel">
-					<h2>Create an account</h2>
+					<h2 className="font-bold">Create an account</h2>
 					<p className="login-text">
 						Already have an account? <Link to="/login">Login</Link>
 					</p>
@@ -140,10 +174,10 @@ export default function Signup() {
 							<span className="eye" onClick={() => setShowPassword(!showPassword)}>
 								{showPassword ? "🙈" : "👁"}
 							</span>
+							{errors.password && <small className="error">{errors.password}</small>}
 						</div>
-						{errors.password && <small className="error">{errors.password}</small>}
 
-						<button className="btn-primary" onClick={handleSubmit} disabled={!isFormFilled}>
+						<button className="btn-primary hover:opacity-80 transition-opacity" onClick={handleSubmit} disabled={!isFormFilled}>
 							Create Account
 						</button>
 
@@ -153,8 +187,22 @@ export default function Signup() {
 							<span></span>
 						</div>
 
-						<div className="social-buttons">
+						{/* <div className="social-buttons">
 							<button className="google">Google</button>
+						</div> */}
+
+						<div className="social-buttons">
+							<button
+								className="google hover:opacity-80 transition-opacity flex justify-center items-center gap-4"
+								onClick={handleGoogleLogin}
+							>
+								<img
+									src="https://cdn.jsdelivr.net/gh/devicons/devicon@master/icons/google/google-original.svg"
+									alt=""
+									className="w-6"
+								/>
+								<span>Google</span>
+							</button>
 						</div>
 					</form>
 				</div>

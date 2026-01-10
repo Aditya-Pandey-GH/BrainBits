@@ -1,15 +1,28 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import SignUp from "./components/pages/SignUp";
+import { AuthProvider } from "./components/contexts/AuthContext";
+import ProtectedRoute from "./components/utils/ProtectedRoutes";
 import Login from "./components/pages/Login";
+import Signup from "./components/pages/SignUp";
+import SomePage from "./components/pages/SomePage";
 
 const App = () => {
 	return (
-		<BrowserRouter>
-			<Routes>
-				<Route path="/signup" element={<SignUp />} />
-				<Route path="/login" element={<Login />} />
-			</Routes>
-		</BrowserRouter>
+		<AuthProvider>
+			<BrowserRouter>
+				<Routes>
+					<Route
+						path="/"
+						element={
+							<ProtectedRoute>
+								<SomePage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route path="/signup" element={<Signup />} />
+					<Route path="/login" element={<Login />} />
+				</Routes>
+			</BrowserRouter>
+		</AuthProvider>
 	);
 };
 
