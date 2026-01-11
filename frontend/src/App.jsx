@@ -7,7 +7,7 @@ import ProtectedRoute from "./components/utils/ProtectedRoutes";
 import Dashboard from "./components/pages/Dashboard";
 import CodeEditor from "./components/pages/CodeEditor";
 import ScheduleGenerator from "./components/pages/ScheduleGenerator";
-import AIChatBot from "./components/pages/aiChatBot";
+import AIChatBot from "./components/pages/AIChatBot";
 
 const App = () => {
 	return (
