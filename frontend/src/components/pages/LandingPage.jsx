@@ -54,7 +54,7 @@ const LandingPage = () => {
 					<img src="/assets/globe.png" alt="" className="w-960 lg:w-400 opacity-5" />
 				</div>
 			</div>
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 };

@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
+
 import { NavItems } from "../helpers/NavItems";
 import { auth } from "../helpers/Firebase";
 import { useAuth } from "../contexts/AuthContext";
@@ -11,7 +12,7 @@ const Navbar = () => {
 	const handleLogout = async () => {
 		try {
 			await signOut(auth);
-			navigate("/login");
+			navigate("/");
 		} catch (error) {
 			console.error("Error signing out:", error);
 		}

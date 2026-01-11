@@ -1,0 +1,17 @@
+.lobby-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.lobby-container h1 {
+  font-size: 48px;
+  margin-bottom: 30px;
+}
+
+.lobby-container button {
+  font-size: 18px;
+  padding: 12px 24px;
+}
