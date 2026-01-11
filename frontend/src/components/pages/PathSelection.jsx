@@ -12,7 +12,7 @@ function PathSelection({ onPlanCreated }) {
 	const [preferredDays, setPreferredDays] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
-	const [open, setOpen] = useState(true);
+	// const [open, setOpen] = useState(true);
 
 	const handleDayToggle = (day) => {
 		setPreferredDays((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]));
@@ -58,8 +58,8 @@ function PathSelection({ onPlanCreated }) {
 
 	return (
 		<>
-			<Sidebar open={open} setOpen={setOpen} />
-			<div className={`min-h-dvh flex items-center justify-center p-4 ${open ? "ml-64" : "ml-20"} transition-all`}>
+			{/* <Sidebar open={open} setOpen={setOpen} /> */}
+			<div className={`min-h-dvh flex items-center justify-center p-4`}>
 				<div className="w-full max-w-2xl glass bg-slate-800 rounded-2xl p-8 shadow-glow-lg border border-dark-700">
 					<div className="text-center mb-8">
 						<h1 className="text-4xl font-bold mb-2 bg-clip-text">Schedule Generator</h1>
